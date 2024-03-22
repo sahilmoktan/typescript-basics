@@ -12,6 +12,8 @@ type Task ={
 const list = document.querySelector<HTMLUListElement>("#list")
 const form = document.getElementById("new-task-form") as HTMLFormElement | null
 const input = document.querySelector<HTMLInputElement>("#new-task-title")
+const tasks: Task = [] = loadTasks()
+tasks.forEach(addListItem)
 
 // on above const list/form/input 
 // ts says its and element or null so we give them <HTMLUListElement> 
@@ -31,8 +33,10 @@ form?.addEventListener("submit", e=>{
         completed: false,
         createdAt: new Date()
     }
+    tasks.push(newTask)
     
     addListItem(newTask)
+    input.value= ''
 })
 
 
@@ -41,8 +45,24 @@ function addListItem(task:Task){
 const item = document.createElement("li")
 const label = document.createElement('label')
 const CheckBox = document.createElement('input')
+CheckBox.addEventListener('change',()=>{
+    task.completed = CheckBox.checked
+    saveTasks()
+})
 CheckBox.type= 'checkbox'
+CheckBox.checked = task.completed
 label.append(CheckBox, task.title)
 item.append(label)
 list?.append(item)
+}
+
+
+function saveTasks(){
+    localStorage.setItem("TASKS", JSON.stringify(tasks))
+}
+
+function loadTasks(): Task[] {
+    const taskJSON = localStorage.getItem("TASKS")
+    if(taskJSON==null) return []
+    return JSON.parse(taskJSON)
 }
